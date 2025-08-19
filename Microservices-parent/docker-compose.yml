@@ -1,5 +1,4 @@
----
-version: '3'
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
@@ -7,19 +6,249 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - microservicenetwork
 
-  broker:
+  kafka:
     image: confluentinc/cp-kafka:7.0.1
-    container_name: broker
-    ports:
-      - "9092:9092"
+    container_name: kafka
+#    ports:
+#      - "9092:9092"
     depends_on:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    networks:
+      - microservicenetwork
+
+  mongo-db:
+    image: mongo
+    restart: always
+    container_name: mongo-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: joban
+      MONGO_INITDB_ROOT_PASSWORD: joban
+    volumes:
+      - mongodb_data_container:/data/db
+#    ports:
+#      - 27017:27017
+    networks:
+      - microservicenetwork
+
+
+  mysql:
+    image: mysql
+    container_name: MySQL
+#    restart: always
+    cap_add:
+      - SYS_NICE
+    environment:
+      MYSQL_ROOT_PASSWORD: joban
+#      MYSQL_DATABASE: inventorydb
+      MYSQL_USER: joban
+      MYSQL_PASSWORD: joban
+    volumes:
+      - mysql-data:/var/lib/mysql
+#    ports:
+#      - 3306:3306
+    networks:
+      - microservicenetwork
+
+  cart-service:
+    image: 'cart-service:latest'
+    build:
+      context: .
+    container_name: cart-service
+    depends_on:
+      - mongo-db
+      - eureka-service
+    environment:
+      - GRPC_SERVER_PORT=8083
+      - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_DATA_MONGODB_DATABASE=Carts
+    networks:
+      - microservicenetwork
+
+  inventory-service:
+    image: 'inventory-service:latest'
+    build:
+      context: .
+    container_name: inventory-service
+    depends_on:
+      - mysql
+      - kafka
+      - eureka-service
+    environment:
+      - GRPC_SERVER_PORT=8084
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/inventorydb?useSSL=false&&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=joban
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    networks:
+      - microservicenetwork
+
+  notification-service:
+    image: 'notification-service:latest'
+    build:
+      context: .
+    container_name: notification-service
+    depends_on:
+      - eureka-service
+      - kafka
+    environment:
+      - GRPC_SERVER_PORT=8085
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    networks:
+      - microservicenetwork
+
+  order-service:
+    image: 'order-service:latest'
+    build:
+      context: .
+    container_name: order-service
+    depends_on:
+      - mysql
+      - eureka-service
+      - kafka
+    environment:
+      - GRPC_SERVER_PORT=8086
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/orderdb?useSSL=false&&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=joban
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    networks:
+      - microservicenetwork
+
+  order-validation-service:
+    image: 'order-validation-service:latest'
+    build:
+      context: .
+    container_name: order-validation-service
+    depends_on:
+      - eureka-service
+    environment:
+      - GRPC_SERVER_PORT=8087
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    networks:
+      - microservicenetwork
+
+  order-validation-service-retry:
+    image: 'order-validation-service-retry:latest'
+    build:
+      context: .
+    container_name: order-validation-service-retry
+    depends_on:
+      - eureka-service
+      - mongo-db
+      - kafka
+    environment:
+      - GRPC_SERVER_PORT=8088
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
+      - SPRING_DATA_MONGODB_DATABASE=OrdersToValidate
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    networks:
+      - microservicenetwork
+
+  product-service:
+    image: 'product-service:latest'
+    build:
+      context: .
+    container_name: product-service
+    depends_on:
+      - eureka-service
+      - mongo-db
+      - kafka
+    environment:
+      - GRPC_SERVER_PORT=8089
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
+      - SPRING_DATA_MONGODB_DATABASE=Products
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    networks:
+      - microservicenetwork
+
+  user-service:
+    image: 'user-service:latest'
+    build:
+      context: .
+    container_name: user-service
+    depends_on:
+      - eureka-service
+      - mongo-db
+      - kafka
+    environment:
+      - GRPC_SERVER_PORT=8090
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
+      - SPRING_DATA_MONGODB_DATABASE=Users
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    networks:
+      - microservicenetwork
+
+  eureka-service:
+    image: 'eurekaserver'
+    build:
+      context: .
+    container_name: eureka-service
+    environment:
+      - SERVER_PORT=8761
+    ports:
+      - "8761:8761"
+    networks:
+      - microservicenetwork
+
+  API-Gateway-service:
+    image: 'api-gateway:latest'
+    build:
+      context: .
+    container_name: API-Gateway-service
+    depends_on:
+      - eureka-service
+    environment:
+#        - SERVER_PORT=8080
+      - GRPC_SERVER_PORT=8080
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+    ports:
+      - "8080:8080"
+    networks:
+      - microservicenetwork
+
+#  opentelemetry-collector:
+#    image: otel/opentelemetry-collector-contrib
+#    container_name: opentelemetry-collector
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 125M
+#    restart: unless-stopped
+#    volumes:
+#      # Override the image's default collector config
+#      - ./otel_config.yml:/etc/otelcol/config.yaml
+#    ports:
+#      - "4317:4317"   # OTEL gRPC
+#      - "4318:4318"   # OTEL HTTP
+#      - "8888:8888"   # Opentelemetry-collector metrics
+#      - "8889:8889"   # Prometheus exporter
+#      - "13133:13133" # Health check
+#    networks:
+#      - microservicenetwork
+
+networks:
+  microservicenetwork:
+    driver: bridge
+
+volumes:
+  mongodb_data_container:
+  mysql-data:
