@@ -1,29 +1,45 @@
+extensions:
+  health_check: {}
 receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: 0.0.0.0:4317
+        endpoint: otel-collector:4317
       http:
-        endpoint: 0.0.0.0:4318
-
+        endpoint: otel-collector:4318
+processors:
+  batch:
+  # Will convert all monotonic, cumulative sums to monotonic, delta sums
+  cumulativetodelta:
+  transform:
+    trace_statements:
+      - truncate_all(span.attributes, 4095)
+      - truncate_all(resource.attributes, 4095)
+    log_statements:
+      - truncate_all(log.attributes, 4095)
+      - truncate_all(resource.attributes, 4095)
+    metric_statements:
+      - truncate_all(datapoint.attributes, 4095)
+      - truncate_all(resource.attributes, 4095)
 exporters:
-  otlphttp/newrelic:
-    endpoint: https://otlp.nr-data.net:4318
-    headers:
-      api-key: "" #joban new relic account
-
-   
   debug:
-    verbosity: detailed 
+    verbosity: detailed
+  otlphttp:
+    endpoint: https://otlp.nr-data.net
+    headers:
+      api-key:
 service:
+  extensions: [health_check]
   pipelines:
-    traces:
-      receivers: [otlp]
-      exporters: [otlphttp/newrelic, debug]
     metrics:
       receivers: [otlp]
-      exporters: [otlphttp/newrelic,debug]
-    logs:
+      processors: [cumulativetodelta, transform, batch]
+      exporters: [debug, otlphttp]
+    traces:
       receivers: [otlp]
-      exporters: [otlphttp/newrelic,debug]
- 
+      processors: [transform, batch]
+      exporters: [debug, otlphttp]
+    logs:
+      receivers: [otlp, fluentforward]
+      processors: [transform, batch]
+      exporters: [debug, otlphttp]
