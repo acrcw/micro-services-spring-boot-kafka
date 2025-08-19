@@ -115,6 +115,12 @@
             <artifactId>opentelemetry-spring-boot-starter</artifactId>
             <version>2.15.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api-incubator</artifactId>
+            <version>1.50.0-alpha</version>
+            <scope>runtime</scope>
+        </dependency>
 
     </dependencies>
     <dependencyManagement>

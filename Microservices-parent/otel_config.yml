@@ -4,9 +4,9 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: otel-collector:4317
+        endpoint: 0.0.0.0:4317
       http:
-        endpoint: otel-collector:4318
+        endpoint: 0.0.0.0:4318
 processors:
   batch:
   # Will convert all monotonic, cumulative sums to monotonic, delta sums
@@ -25,7 +25,7 @@ exporters:
   debug:
     verbosity: detailed
   otlphttp:
-    endpoint: https://otlp.nr-data.net
+    endpoint: https://otlp.nr-data.net:443
     headers:
       api-key:
 service:
@@ -40,6 +40,6 @@ service:
       processors: [transform, batch]
       exporters: [debug, otlphttp]
     logs:
-      receivers: [otlp, fluentforward]
+      receivers: [otlp]
       processors: [transform, batch]
       exporters: [debug, otlphttp]
