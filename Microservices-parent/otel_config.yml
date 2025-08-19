@@ -22,8 +22,8 @@ service:
       exporters: [otlphttp/newrelic, debug]
     metrics:
       receivers: [otlp]
-      exporters: [otlphttp/newrelic]
+      exporters: [otlphttp/newrelic,debug]
     logs:
       receivers: [otlp]
-      exporters: [otlphttp/newrelic]
+      exporters: [otlphttp/newrelic,debug]
  

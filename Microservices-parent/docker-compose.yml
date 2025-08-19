@@ -75,6 +75,7 @@ services:
       - SPRING_DATA_MONGODB_DATABASE=Carts
       - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+      - OTEL_SERVICE_NAME=cart-service
     networks:
       - microservicenetwork
 
@@ -96,6 +97,7 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+      - OTEL_SERVICE_NAME=inventory-service
     networks:
       - microservicenetwork
 
@@ -113,6 +115,7 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+      - OTEL_SERVICE_NAME=notification-service
     networks:
       - microservicenetwork
 
@@ -134,6 +137,7 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+      - OTEL_SERVICE_NAME=order-service
     networks:
       - microservicenetwork
 
@@ -150,6 +154,7 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+      - OTEL_SERVICE_NAME=order-validation-retry-service
     networks:
       - microservicenetwork
 
@@ -170,6 +175,7 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+      - OTEL_SERVICE_NAME=order-validation-retry-service
     networks:
       - microservicenetwork
 
@@ -190,6 +196,7 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+      - OTEL_SERVICE_NAME=product-service
     networks:
       - microservicenetwork
 
@@ -210,6 +217,7 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+      - OTEL_SERVICE_NAME=user-service
     networks:
       - microservicenetwork
 
@@ -222,6 +230,7 @@ services:
       - SERVER_PORT=8761
       - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+      - OTEL_SERVICE_NAME=eureka-service
     ports:
       - "8761:8761"
     networks:
@@ -240,6 +249,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
+      - OTEL_SERVICE_NAME=API-Gateway-service
     ports:
       - "8080:8080"
     networks:
