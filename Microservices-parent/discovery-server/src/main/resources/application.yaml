@@ -1,5 +1,6 @@
 server:
   port: 8761
+  shutdown: graceful   # completes ongoing requests before shutting down
 
 eureka:
 #  instance:
@@ -9,6 +10,29 @@ eureka:
     fetchRegistry: false
 #    serviceUrl:
 #      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    # shutdown:
+    #   enabled: true   # uncomment to enable shutdown endpoint
+  info:
+    env:
+      enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+
+info:
+  app:
+    name: Eureka-Service
+    description: Service-Discovery
+    version: 1
+
 
 
 
