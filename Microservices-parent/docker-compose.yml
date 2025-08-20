@@ -61,7 +61,7 @@ services:
       - microservicenetwork
 
   cart-service:
-    image: 'acrcw/cart-service:latest'
+    image: 'cart-service:latest'
     build:
       context: .
     container_name: cart-service
@@ -80,7 +80,7 @@ services:
       - microservicenetwork
 
   inventory-service:
-    image: 'acrcw/inventory-service:latest'
+    image: 'inventory-service:latest'
     build:
       context: .
     container_name: inventory-service
@@ -102,7 +102,7 @@ services:
       - microservicenetwork
 
   notification-service:
-    image: 'acrcw/notification-service:latest'
+    image: 'notification-service:latest'
     build:
       context: .
     container_name: notification-service
@@ -120,7 +120,7 @@ services:
       - microservicenetwork
 
   order-service:
-    image: 'acrcw/order-service:latest'
+    image: 'order-service:latest'
     build:
       context: .
     container_name: order-service
@@ -142,7 +142,7 @@ services:
       - microservicenetwork
 
   order-validation-service:
-    image: 'acrcw/order-validation-service:latest'
+    image: 'order-validation-service:latest'
     build:
       context: .
     container_name: order-validation-service
@@ -159,7 +159,7 @@ services:
       - microservicenetwork
 
   order-validation-retry-service:
-    image: 'acrcw/order-validation-retry-service:latest'
+    image: 'order-validation-retry-service:latest'
     build:
       context: .
     container_name: order-validation-retry-service
@@ -180,7 +180,7 @@ services:
       - microservicenetwork
 
   product-service:
-    image: 'acrcw/product-service:latest'
+    image: 'product-service:latest'
     build:
       context: .
     container_name: product-service
@@ -201,7 +201,7 @@ services:
       - microservicenetwork
 
   user-service:
-    image: 'acrcw/user-service:latest'
+    image: 'user-service:latest'
     build:
       context: .
     container_name: user-service
@@ -222,7 +222,7 @@ services:
       - microservicenetwork
 
   eureka-service:
-    image: 'acrcw/eureka-service'
+    image: 'eureka-service'
     build:
       context: .
     container_name: eureka-service
@@ -237,7 +237,7 @@ services:
       - microservicenetwork
 
   API-Gateway-service:
-    image: 'acrcw/api-gateway:latest'
+    image: 'api-gateway:latest'
     build:
       context: .
     container_name: API-Gateway-service
