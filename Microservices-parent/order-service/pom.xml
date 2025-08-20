@@ -113,9 +113,12 @@
             <version>1.50.0-alpha</version>
             <scope>runtime</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-kafka-clients-2.6 -->
         <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-kafka-clients-2.6</artifactId>
+            <version>2.16.0-alpha</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
     <dependencyManagement>

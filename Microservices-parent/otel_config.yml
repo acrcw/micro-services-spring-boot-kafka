@@ -10,7 +10,7 @@ exporters:
   otlphttp/newrelic:
     endpoint: https://otlp.nr-data.net:4318
     headers:
-      api-key: ""
+      api-key: "93fdf1a02a4b32ab420fce5a56f4efbcFFFFNRAL"
 
 
   debug:
