@@ -21,7 +21,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 @AllArgsConstructor
-public class OrderStatusChangeListener {
+public class OrderStatusChangeListener  {
 
     private final ObjectMapper objectMapper;
     private final OrderService orderService;

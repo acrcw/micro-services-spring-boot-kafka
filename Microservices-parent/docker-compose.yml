@@ -222,7 +222,7 @@ services:
       - microservicenetwork
 
   eureka-service:
-    image: 'eureka-service'
+    image: 'eureka-service:latest'
     build:
       context: .
     container_name: eureka-service

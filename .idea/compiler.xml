@@ -13,6 +13,9 @@
         <module name="product-service" />
         <module name="order-service" />
         <module name="user-service" />
+        <module name="order-validation-service-retry1" />
+        <module name="notification-service" />
+        <module name="order-validation-service" />
       </profile>
     </annotationProcessing>
   </component>
@@ -22,7 +25,10 @@
       <module name="cart-service" options="-parameters" />
       <module name="discovery-server" options="-parameters" />
       <module name="inventory-service" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
       <module name="order-service" options="-parameters" />
+      <module name="order-validation-service" options="-parameters" />
+      <module name="order-validation-service-retry1" options="-parameters" />
       <module name="product-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
