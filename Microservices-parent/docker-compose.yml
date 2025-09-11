@@ -12,8 +12,8 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
-#    ports:
-#      - "9092:9092"
+    ports:
+      - "9092:9092"
     depends_on:
       - zookeeper
     environment:
@@ -36,8 +36,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: joban
     volumes:
       - mongodb_data_container:/data/db
-#    ports:
-#      - 27017:27017
+    ports:
+      - 27017:27017
     networks:
       - microservicenetwork
 
@@ -55,8 +55,8 @@ services:
       MYSQL_PASSWORD: joban
     volumes:
       - mysql-data:/var/lib/mysql
-#    ports:
-#      - 3306:3306
+    ports:
+      - 3306:3306
     networks:
       - microservicenetwork
 
@@ -91,7 +91,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=joban
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     networks:
       - microservicenetwork
 
@@ -106,7 +106,7 @@ services:
     environment:
       - GRPC_SERVER_PORT=8085
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     networks:
       - microservicenetwork
 
@@ -125,7 +125,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=joban
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     networks:
       - microservicenetwork
 
@@ -139,15 +139,15 @@ services:
     environment:
       - GRPC_SERVER_PORT=8087
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     networks:
       - microservicenetwork
 
-  order-validation-service-retry:
-    image: 'order-validation-service-retry:latest'
+  order-validation-retry-service:
+    image: 'order-validation-retry-service:latest'
     build:
       context: .
-    container_name: order-validation-service-retry
+    container_name: order-validation-retry-service
     depends_on:
       - eureka-service
       - mongo-db
@@ -157,7 +157,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
       - SPRING_DATA_MONGODB_DATABASE=OrdersToValidate
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     networks:
       - microservicenetwork
 
@@ -175,7 +175,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
       - SPRING_DATA_MONGODB_DATABASE=Products
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     networks:
       - microservicenetwork
 
@@ -193,12 +193,12 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
       - SPRING_DATA_MONGODB_DATABASE=Users
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     networks:
       - microservicenetwork
 
   eureka-service:
-    image: 'eurekaserver'
+    image: 'eureka-service'
     build:
       context: .
     container_name: eureka-service
@@ -224,26 +224,6 @@ services:
       - "8080:8080"
     networks:
       - microservicenetwork
-
-#  opentelemetry-collector:
-#    image: otel/opentelemetry-collector-contrib
-#    container_name: opentelemetry-collector
-#    deploy:
-#      resources:
-#        limits:
-#          memory: 125M
-#    restart: unless-stopped
-#    volumes:
-#      # Override the image's default collector config
-#      - ./otel_config.yml:/etc/otelcol/config.yaml
-#    ports:
-#      - "4317:4317"   # OTEL gRPC
-#      - "4318:4318"   # OTEL HTTP
-#      - "8888:8888"   # Opentelemetry-collector metrics
-#      - "8889:8889"   # Prometheus exporter
-#      - "13133:13133" # Health check
-#    networks:
-#      - microservicenetwork
 
 networks:
   microservicenetwork:
