@@ -22,63 +22,23 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
-    ports:
-      - "9092:9092"
-      - "9093:9093"
-      - "9999:9999"
-#      - "9999:9999"
     depends_on:
       - zookeeper
+    volumes:
+      - ./opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar
+      - ./kafka-jmx-config.yaml:/otel/kafka-jmx-config.yaml
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://kafka:29092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://kafka:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-#      OTEL_EXPORTER_OTLP_ENDPOINT: http://opentelemetry-collector:4317
-      KAFKA_JMX_PORT: 9999
-      KAFKA_JMX_HOSTNAME: kafka
-      KAFKA_JMX_OPTS: |
-        -Dcom.sun.management.jmxremote=true
-        -Dcom.sun.management.jmxremote.local.only=false
-        -Dcom.sun.management.jmxremote.authenticate=false
-        -Dcom.sun.management.jmxremote.ssl=false
-        -Dcom.sun.management.jmxremote.port=9999
-        -Dcom.sun.management.jmxremote.rmi.port=9999
-        -Djava.rmi.server.hostname=kafka
-
-      OTEL_SERVICE_NAME: kafka-broker
-
-      KAFKA_OPTS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.jmx.target.system=kafka-broker -Dotel.javaagent.extensions=/otel/opentelemetry-jmx-metrics.jar -Dotel.exporter.otlp.protocol=grpc -Dotel.exporter.otlp.endpoint=http://opentelemetry-collector:4317"
-
-
-        #      KAFKA_OPTS: |
-#        -javaagent:/otel/opentelemetry-javaagent.jar
-#        -Dotel.jmx.target.system=kafka-broker
-#        -Dotel.javaagent.extensions=/otel/opentelemetry-jmx-metrics.jar
-#        -Dotel.exporter.otlp.protocol=grpc
-#        -Dotel.exporter.otlp.endpoint=http://opentelemetry-collector:4317
-        
-
-#      KAFKA_OPTS: "-javaagent:/tmp/opentelemetry-javaagent.jar -Dotel.jmx.target.system=kafka-broker"
-
-    #      KAFKA_JMX_PORT: 9999
-#      KAFKA_JMX_HOSTNAME: kafka
-#      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote=true
-#                       -Dcom.sun.management.jmxremote.local.only=false
-#                       -Dcom.sun.management.jmxremote.authenticate=false
-#                       -Dcom.sun.management.jmxremote.ssl=false
-#                       -Djava.rmi.server.hostname=kafka"
-#      KAFKA_HEAP_OPTS: "-javaagent:/newrelic/newrelic.jar"
-    volumes:
-      - ./otel/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar
-      - ./otel/opentelemetry-jmx-metrics.jar:/otel/opentelemetry-jmx-metrics.jar
-#      - ./otel/opentelemetry-javaagent.jar:/tmp/opentelemetry-javaagent.jar
-#      - ./newrelic:/newrelic
+      KAFKA_OPTS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.metrics.exporter=prometheus -Dotel.exporter.prometheus.port=9464 -Dotel.service.name=my-kafka-broker -Dotel.jmx.target.system=kafka-broker -Dotel.exporter.otlp.endpoint=http://opentelemetry-collector:4318"
+    ports:
+      - "9464:9464"
     networks:
       - microservicenetwork
 
@@ -91,8 +51,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: joban
     volumes:
       - mongodb_data_container:/data/db
-    ports:
-      - 27017:27017
+    # ports:
+      # - 27017:27017
     networks:
       - microservicenetwork
 
@@ -110,21 +70,21 @@ services:
       MYSQL_PASSWORD: joban
     volumes:
       - mysql-data:/var/lib/mysql
-    ports:
-      - 3306:3306
+    # ports:
+      # - 3306:3306
     networks:
       - microservicenetwork
 
   cart-service:
     image: 'cart-service:latest'
     build:
-      context: .
+      context: ./cart-service
     container_name: cart-service
     depends_on:
       - mongo-db
       - eureka-service
     environment:
-      - GRPC_SERVER_PORT=8083
+      - GRPC_SERVER_PORT=8080
       - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATA_MONGODB_DATABASE=Carts
@@ -137,14 +97,14 @@ services:
   inventory-service:
     image: 'inventory-service:latest'
     build:
-      context: .
+      context: ./inventory-service
     container_name: inventory-service
     depends_on:
       - mysql
       - kafka
       - eureka-service
     environment:
-      - GRPC_SERVER_PORT=8084
+      - GRPC_SERVER_PORT=8080
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/inventorydb?useSSL=false&&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATASOURCE_USERNAME=root
@@ -161,13 +121,13 @@ services:
   notification-service:
     image: 'notification-service:latest'
     build:
-      context: .
+      context: ./notification-service
     container_name: notification-service
     depends_on:
       - eureka-service
       - kafka
     environment:
-      - GRPC_SERVER_PORT=8085
+      - GRPC_SERVER_PORT=8080
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
@@ -179,14 +139,14 @@ services:
   order-service:
     image: 'order-service:latest'
     build:
-      context: .
+      context: ./order-service
     container_name: order-service
     depends_on:
       - mysql
       - eureka-service
       - kafka
     environment:
-      - GRPC_SERVER_PORT=8086
+      - GRPC_SERVER_PORT=8080
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/orderdb?useSSL=false&&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATASOURCE_USERNAME=root
@@ -203,12 +163,12 @@ services:
   order-validation-service:
     image: 'order-validation-service:latest'
     build:
-      context: .
+      context: ./order-validation-service
     container_name: order-validation-service
     depends_on:
       - eureka-service
     environment:
-      - GRPC_SERVER_PORT=8087
+      - GRPC_SERVER_PORT=8080
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
 #      - SPRING.KAFKA.LISTENER.OBSERVATION_ENABLED=true
@@ -222,14 +182,14 @@ services:
   order-validation-retry-service:
     image: 'order-validation-service-retry1:latest'
     build:
-      context: .
+      context: ./order-validation-service-retry1
     container_name: order-validation-retry-service
     depends_on:
       - eureka-service
       - mongo-db
       - kafka
     environment:
-      - GRPC_SERVER_PORT=8088
+      - GRPC_SERVER_PORT=8080
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
       - SPRING_DATA_MONGODB_DATABASE=OrdersToValidate
@@ -245,14 +205,14 @@ services:
   product-service:
     image: 'product-service:latest'
     build:
-      context: .
+      context: ./product-service
     container_name: product-service
     depends_on:
       - eureka-service
       - mongo-db
       - kafka
     environment:
-      - GRPC_SERVER_PORT=8089
+      - GRPC_SERVER_PORT=8080
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
       - SPRING_DATA_MONGODB_DATABASE=Products
@@ -268,14 +228,14 @@ services:
   user-service:
     image: 'user-service:latest'
     build:
-      context: .
+      context: ./user-service
     container_name: user-service
     depends_on:
       - eureka-service
       - mongo-db
       - kafka
     environment:
-      - GRPC_SERVER_PORT=8090
+      - GRPC_SERVER_PORT=8080
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
       - SPRING_DATA_MONGODB_DATABASE=Users
@@ -291,7 +251,7 @@ services:
   eureka-service:
     image: 'eureka-service'
     build:
-      context: .
+      context: ./discovery-server
     container_name: eureka-service
     environment:
       - SERVER_PORT=8761
@@ -306,7 +266,7 @@ services:
   API-Gateway-service:
     image: 'api-gateway:latest'
     build:
-      context: .
+      context: ./api-gateway/
     container_name: API-Gateway-service
     depends_on:
       - eureka-service
@@ -332,11 +292,9 @@ services:
     restart: unless-stopped
     volumes:
       #Override the image's default collector config
-#      - ./otel_config.yml:/etc/otelcol/config.yaml
+      # - ./tmp:/tmp
       - ./otel_config.yaml:/etc/otelcol-contrib/config.yaml
-      - ./otel/opentelemetry-jmx-metrics.jar:/otel/opentelemetry-jmx-metrics.jar
-      - ./otel/tmp:/tmp
-#      - ./otel/opentelemetry-jmx-metrics.jar:/otel/opentelemetry-jmx-metrics.jar
+
     ports:
       - "4317:4317"   #OTEL gRPC
       - "4318:4318"   #OTEL HTTP
