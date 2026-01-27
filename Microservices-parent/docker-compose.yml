@@ -1,46 +1,4 @@
-
 services:
-  kcat:
-    image: edenhill/kcat:1.7.1
-    container_name: kcat
-    stdin_open: true
-    tty: true
-    environment:
-      KAFKA_BROKERS: "kafka:9092"   # point this to your Kafka broker
-    entrypoint: [ "/bin/sh" ]
-    networks:
-      - microservicenetwork
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.1
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    networks:
-      - microservicenetwork
-
-  kafka:
-    image: confluentinc/cp-kafka:7.0.1
-    container_name: kafka
-    depends_on:
-      - zookeeper
-    volumes:
-      - ./opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar
-      - ./kafka-jmx-config.yaml:/otel/kafka-jmx-config.yaml
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://kafka:29092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_OPTS: "-javaagent:/otel/opentelemetry-javaagent.jar -Dotel.metrics.exporter=prometheus -Dotel.exporter.prometheus.port=9464 -Dotel.service.name=my-kafka-broker -Dotel.jmx.target.system=kafka-broker -Dotel.exporter.otlp.endpoint=http://opentelemetry-collector:4318"
-    ports:
-      - "9464:9464"
-    networks:
-      - microservicenetwork
 
   mongo-db:
     image: mongo
@@ -51,32 +9,27 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: joban
     volumes:
       - mongodb_data_container:/data/db
-    # ports:
-      # - 27017:27017
     networks:
       - microservicenetwork
 
 
   mysql:
     image: mysql
-    container_name: MySQL
-#    restart: always
+    container_name: mysql
     cap_add:
       - SYS_NICE
     environment:
       MYSQL_ROOT_PASSWORD: joban
-#      MYSQL_DATABASE: inventorydb
       MYSQL_USER: joban
       MYSQL_PASSWORD: joban
     volumes:
       - mysql-data:/var/lib/mysql
-    # ports:
-      # - 3306:3306
     networks:
       - microservicenetwork
 
+
   cart-service:
-    image: 'cart-service:latest'
+    image: acrcw/cart-service:kafka
     build:
       context: ./cart-service
     container_name: cart-service
@@ -86,82 +39,100 @@ services:
     environment:
       - GRPC_SERVER_PORT=8080
       - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATA_MONGODB_DATABASE=Carts
-      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=cart-service
     networks:
       - microservicenetwork
 
+
   inventory-service:
-    image: 'inventory-service:latest'
+    image: acrcw/inventory-service:kafka
     build:
       context: ./inventory-service
     container_name: inventory-service
     depends_on:
       - mysql
-      - kafka
       - eureka-service
     environment:
       - GRPC_SERVER_PORT=8080
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/inventorydb?useSSL=false&&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/inventorydb?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=joban
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
-#      - SPRING.KAFKA.LISTENER.OBSERVATION_ENABLED=true
-#      - SPRING.KAFKA.TEMPLATE.OBSERVATION_ENABLED=true
-      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+
+      # 🔑 AWS MSK SERVERLESS
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
+      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      - AWS_REGION=ap-south-1
+
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=inventory-service
     networks:
       - microservicenetwork
 
+
   notification-service:
-    image: 'notification-service:latest'
+    image: acrcw/notification-service:kafka
     build:
       context: ./notification-service
     container_name: notification-service
     depends_on:
       - eureka-service
-      - kafka
     environment:
       - GRPC_SERVER_PORT=8080
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
-      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
+
+      # 🔑 AWS MSK SERVERLESS
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
+      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      - AWS_REGION=ap-south-1
+
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=notification-service
     networks:
       - microservicenetwork
 
+
   order-service:
-    image: 'order-service:latest'
+    image: acrcw/order-service:kafka
     build:
       context: ./order-service
     container_name: order-service
     depends_on:
       - mysql
       - eureka-service
-      - kafka
     environment:
       - GRPC_SERVER_PORT=8080
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/orderdb?useSSL=false&&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/orderdb?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=joban
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
-#      - SPRING.KAFKA.LISTENER.OBSERVATION_ENABLED=true
-#      - SPRING.KAFKA.TEMPLATE.OBSERVATION_ENABLED=true
-      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+
+      # 🔑 AWS MSK SERVERLESS
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
+      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      - AWS_REGION=ap-south-1
+
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=order-service
     networks:
       - microservicenetwork
 
+
   order-validation-service:
-    image: 'order-validation-service:latest'
+    image: acrcw/order-validation-service:kafka
     build:
       context: ./order-validation-service
     container_name: order-validation-service
@@ -170,92 +141,112 @@ services:
     environment:
       - GRPC_SERVER_PORT=8080
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
-#      - SPRING.KAFKA.LISTENER.OBSERVATION_ENABLED=true
-#      - SPRING.KAFKA.TEMPLATE.OBSERVATION_ENABLED=true
-      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
+
+      # 🔑 AWS MSK SERVERLESS
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
+      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      - AWS_REGION=ap-south-1
+
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
-      - OTEL_SERVICE_NAME=order-validation-retry-service
+      - OTEL_SERVICE_NAME=order-validation-service
     networks:
       - microservicenetwork
 
+
   order-validation-retry-service:
-    image: 'order-validation-service-retry1:latest'
+    image: acrcw/order-validation-service-retry1:kafka
     build:
       context: ./order-validation-service-retry1
     container_name: order-validation-retry-service
     depends_on:
       - eureka-service
       - mongo-db
-      - kafka
     environment:
       - GRPC_SERVER_PORT=8080
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
       - SPRING_DATA_MONGODB_DATABASE=OrdersToValidate
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
-#      - SPRING.KAFKA.LISTENER.OBSERVATION_ENABLED=true
-#      - SPRING.KAFKA.TEMPLATE.OBSERVATION_ENABLED=true
-      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+
+      # 🔑 AWS MSK SERVERLESS
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
+      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      - AWS_REGION=ap-south-1
+
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=order-validation-retry-service
     networks:
       - microservicenetwork
 
+
   product-service:
-    image: 'product-service:latest'
+    image: acrcw/product-service:kafka
     build:
       context: ./product-service
     container_name: product-service
     depends_on:
       - eureka-service
       - mongo-db
-      - kafka
     environment:
       - GRPC_SERVER_PORT=8080
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
       - SPRING_DATA_MONGODB_DATABASE=Products
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
-#      - SPRING.KAFKA.LISTENER.OBSERVATION_ENABLED=true
-#      - SPRING.KAFKA.TEMPLATE.OBSERVATION_ENABLED=true
-      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+
+      # 🔑 AWS MSK SERVERLESS
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
+      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      - AWS_REGION=ap-south-1
+
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=product-service
     networks:
       - microservicenetwork
 
+
   user-service:
-    image: 'user-service:latest'
+    image: acrcw/user-service:kafka
     build:
       context: ./user-service
     container_name: user-service
     depends_on:
       - eureka-service
       - mongo-db
-      - kafka
     environment:
       - GRPC_SERVER_PORT=8080
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
       - SPRING_DATA_MONGODB_URI=mongodb://joban:joban@mongo-db:27017/
       - SPRING_DATA_MONGODB_DATABASE=Users
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
-#      - SPRING.KAFKA.LISTENER.OBSERVATION_ENABLED=true
-#      - SPRING.KAFKA.TEMPLATE.OBSERVATION_ENABLED=true
-      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
+
+      # 🔑 AWS MSK SERVERLESS
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
+      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      - AWS_REGION=ap-south-1
+
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=user-service
     networks:
       - microservicenetwork
 
+
   eureka-service:
-    image: 'eureka-service'
+    image: acrcw/eureka-service:kafka
     build:
       context: ./discovery-server
     container_name: eureka-service
     environment:
       - SERVER_PORT=8761
-      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=eureka-service
     ports:
@@ -263,18 +254,17 @@ services:
     networks:
       - microservicenetwork
 
+
   API-Gateway-service:
-    image: 'api-gateway:latest'
+    image: acrcw/api-gateway:kafka
     build:
-      context: ./api-gateway/
+      context: ./api-gateway
     container_name: API-Gateway-service
     depends_on:
       - eureka-service
     environment:
-#        - SERVER_PORT=8080
       - GRPC_SERVER_PORT=8080
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
-      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://opentelemetry-collector:4318/v1/traces
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=API-Gateway-service
     ports:
@@ -282,31 +272,27 @@ services:
     networks:
       - microservicenetwork
 
+
   opentelemetry-collector:
     image: otel/opentelemetry-collector-contrib:latest
     container_name: opentelemetry-collector
-    deploy:
-      resources:
-        limits:
-          memory: 125M
     restart: unless-stopped
     volumes:
-      #Override the image's default collector config
-      # - ./tmp:/tmp
       - ./otel_config.yaml:/etc/otelcol-contrib/config.yaml
-
     ports:
-      - "4317:4317"   #OTEL gRPC
-      - "4318:4318"   #OTEL HTTP
-      - "8888:8888"   #Opentelemetry-collector metrics
-      - "8889:8889"   #Prometheus exporter
-      - "13133:13133" # Health check
+      - "4317:4317"
+      - "4318:4318"
+      - "8888:8888"
+      - "8889:8889"
+      - "13133:13133"
     networks:
       - microservicenetwork
+
 
 networks:
   microservicenetwork:
     driver: bridge
+
 
 volumes:
   mongodb_data_container:

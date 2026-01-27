@@ -4,7 +4,7 @@ receivers:
         scrape_configs:
           - job_name: kafka-jmx
             static_configs:
-              - targets: ["kafka:9464"]
+              - targets: ["b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098"]
   otlp:
     protocols:
       grpc:
@@ -15,7 +15,7 @@ receivers:
   kafkametrics:
     brokers:
       # - ${env:KAFKA_BROKER_ADDRESS}
-      - kafka:9092
+      - b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
     protocol_version: 2.8.0
     scrapers:
       - brokers
