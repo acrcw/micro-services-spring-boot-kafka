@@ -4,7 +4,7 @@ receivers:
         scrape_configs:
           - job_name: kafka-jmx
             static_configs:
-              - targets: ["b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098"]
+              - targets: ["b-2.otelcluster.6r5lx7.c3.kafka.ap-south-1.amazonaws.com:9094"]
   otlp:
     protocols:
       grpc:
@@ -15,7 +15,7 @@ receivers:
   kafkametrics:
     brokers:
       # - ${env:KAFKA_BROKER_ADDRESS}
-      - b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
+      - b-2.otelcluster.6r5lx7.c3.kafka.ap-south-1.amazonaws.com:9094
     protocol_version: 2.8.0
     scrapers:
       - brokers
@@ -77,7 +77,7 @@ processors:
     attributes:
       - action: insert
         key: kafka.cluster.name
-        value: jobans-kafka-cluster
+        value: msk-provisioned-kafka-cluster
   transform/remove_broker_id:
     metric_statements:
       - context: resource

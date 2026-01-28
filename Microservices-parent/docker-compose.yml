@@ -64,12 +64,12 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
-      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
-      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
-      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
-      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
-      - AWS_REGION=ap-south-1
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster.6r5lx7.c3.kafka.ap-south-1.amazonaws.com:9094
+      # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      # - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      # - AWS_REGION=ap-south-1
 
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=inventory-service
@@ -89,12 +89,12 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
-      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
-      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
-      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
-      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
-      - AWS_REGION=ap-south-1
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster.6r5lx7.c3.kafka.ap-south-1.amazonaws.com:9094
+      # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      # - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      # - AWS_REGION=ap-south-1
 
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=notification-service
@@ -118,12 +118,12 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
-      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
-      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
-      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
-      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
-      - AWS_REGION=ap-south-1
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster.6r5lx7.c3.kafka.ap-south-1.amazonaws.com:9094
+      # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      # - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      # - AWS_REGION=ap-south-1
 
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=order-service
@@ -143,12 +143,12 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
-      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
-      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
-      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
-      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
-      - AWS_REGION=ap-south-1
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster.6r5lx7.c3.kafka.ap-south-1.amazonaws.com:9094
+      # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      # - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      # - AWS_REGION=ap-south-1
 
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=order-validation-service
@@ -171,12 +171,12 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
-      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
-      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
-      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
-      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
-      - AWS_REGION=ap-south-1
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster.6r5lx7.c3.kafka.ap-south-1.amazonaws.com:9094
+      # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      # - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      # - AWS_REGION=ap-south-1
 
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=order-validation-retry-service
@@ -199,12 +199,12 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
-      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
-      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
-      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
-      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
-      - AWS_REGION=ap-south-1
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster.6r5lx7.c3.kafka.ap-south-1.amazonaws.com:9094
+      # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      # - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      # - AWS_REGION=ap-south-1
 
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=product-service
@@ -227,12 +227,12 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster2.gnoh92.c3.kafka.ap-south-1.amazonaws.com:9098
-      - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
-      - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
-      - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
-      - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
-      - AWS_REGION=ap-south-1
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-2.otelcluster.6r5lx7.c3.kafka.ap-south-1.amazonaws.com:9094
+      # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
+      # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
+      # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
+      # - SPRING_KAFKA_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+      # - AWS_REGION=ap-south-1
 
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://opentelemetry-collector:4318
       - OTEL_SERVICE_NAME=user-service
