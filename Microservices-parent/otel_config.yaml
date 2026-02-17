@@ -1,141 +1,16 @@
 receivers:
-  prometheus:
-      config:
-        scrape_configs:
-          - job_name: kafka-jmx
-            static_configs:
-              - targets: ["b-2.otelcluster.6r5lx7.c3.kafka.ap-south-1.amazonaws.com:9094"]
   otlp:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-  # Kafka metrics receiver for cluster-level metrics
-  kafkametrics:
-    brokers:
-      # - ${env:KAFKA_BROKER_ADDRESS}
-      - b-2.otelcluster.6r5lx7.c3.kafka.ap-south-1.amazonaws.com:9094
-    protocol_version: 2.8.0
-    scrapers:
-      - brokers
-      - topics
-      - consumers
-    collection_interval: 30s
-    topic_match: ".*"
-    metrics:
-      kafka.topic.min_insync_replicas:
-        enabled: true
-      kafka.topic.replication_factor:
-        enabled: true
-      kafka.partition.replicas:
-        enabled: false
-      kafka.partition.oldest_offset:
-        enabled: false
-      kafka.partition.current_offset:
-        enabled: false
-
-  # JMX receiver for broker-specific metrics
-  # jmx/kafka_broker-1:
-  #   jar_path: /otel/opentelemetry-jmx-scraper.jar
-  #   endpoint: kafka:9999
-  #   target_system: kafka
-  #   collection_interval: 30s
-  #   jmx_configs: /otel/kafka-jmx-config.yaml
-  #   resource_attributes:
-  #     broker.id: "1"
-  #     broker.endpoint: kafka:9999
-  # kafkametrics:
-  #   brokers: kafka:9092
-  #   protocol_version: 2.0.0
-  #   scrapers:
-  #     - brokers
-  #     - topics
-  #     - consumers
-  #   collection_interval: 5s
-  # jmx/kafka:
-  #   jar_path: /otel/opentelemetry-jmx-metrics.jar
-  #   target_system: kafka
-  #   endpoint: service:jmx:rmi:///jndi/rmi://kafka:9999/jmxrmi
-
-
-processors:
-  batch/aggregation:
-    send_batch_size: 1024
-    timeout: 30s
-
-  resourcedetection:
-    detectors: [env, ec2, system]
-    system:
-      resource_attributes:
-        host.name:
-          enabled: true
-        host.id:
-          enabled: true
-
-  resource:
-    attributes:
-      - action: insert
-        key: kafka.cluster.name
-        value: msk-provisioned-kafka-cluster
-  transform/remove_broker_id:
-    metric_statements:
-      - context: resource
-        statements:
-          - delete_key(attributes, "broker.id")
-
-  filter/include_cluster_metrics:
-    metrics:
-      include:
-        match_type: regexp
-        metric_names:
-          - "kafka\\.partition\\.offline"
-          - "kafka\\.(leader|unclean)\\.election\\.rate"
-          - "kafka\\.partition\\.non_preferred_leader"
-          - "kafka\\.broker\\.fenced\\.count"
-          - "kafka\\.cluster\\.partition\\.count"
-          - "kafka\\.cluster\\.topic\\.count"
-
-  filter/exclude_cluster_metrics:
-    metrics:
-      exclude:
-        match_type: regexp
-        metric_names:
-          - "kafka\\.partition\\.offline"
-          - "kafka\\.(leader|unclean)\\.election\\.rate"
-          - "kafka\\.partition\\.non_preferred_leader"
-          - "kafka\\.broker\\.fenced\\.count"
-          - "kafka\\.cluster\\.partition\\.count"
-          - "kafka\\.cluster\\.topic\\.count"
-
-  transform/des_units:
-    metric_statements:
-      - context: metric
-        statements:
-          - set(description, "") where description != ""
-          - set(unit, "") where unit != ""
-
-  cumulativetodelta:
-
-  metricstransform/kafka_topic_sum_aggregation:
-    transforms:
-      - include: kafka.partition.replicas_in_sync
-        action: insert
-        new_name: kafka.partition.replicas_in_sync.total
-        operations:
-          - action: aggregate_labels
-            label_set: [ topic ]
-            aggregation_type: sum
 
 exporters:
   otlphttp/newrelic:
-    endpoint: https://otlp.nr-data.net:4318
+    endpoint: https://otlp.nr-data.net
     headers:
       api-key: "d1f0c43fe27c1e30bc858a947f4b2da8FFFFNRAL"
-#    compression: gzip
-#    compression: "gzip"
-#    tls:
-#      insecure: false
 
 
   debug:
@@ -144,23 +19,11 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch/aggregation]
-      exporters: [otlphttp/newrelic, debug]
-    metrics/brokers-cluster-topics:
-      receivers: [prometheus, kafkametrics]
-      processors: [resourcedetection, resource, filter/exclude_cluster_metrics, transform/des_units, cumulativetodelta, metricstransform/kafka_topic_sum_aggregation, batch/aggregation]
       exporters: [otlphttp/newrelic]
-
-    metrics/jmx-cluster:
-      receivers: [prometheus]
-      processors: [resourcedetection, resource, filter/include_cluster_metrics, transform/remove_broker_id, transform/des_units, cumulativetodelta, batch/aggregation]
+    metrics:
+      receivers: [otlp]
       exporters: [otlphttp/newrelic]
     logs:
       receivers: [otlp]
-      processors: [batch/aggregation]
-      exporters: [otlphttp/newrelic, debug]
-    metrics:
-      receivers: [otlp]
-      processors: [batch/aggregation]
-      exporters: [otlphttp/newrelic, debug]
+      exporters: [otlphttp/newrelic]
  
