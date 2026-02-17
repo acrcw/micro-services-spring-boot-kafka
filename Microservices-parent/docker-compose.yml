@@ -64,7 +64,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092
       # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
       # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
       # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
@@ -89,7 +89,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092
       # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
       # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
       # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
@@ -118,7 +118,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092
       # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
       # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
       # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
@@ -143,7 +143,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092
       # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
       # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
       # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
@@ -171,7 +171,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092
       # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
       # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
       # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
@@ -199,7 +199,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092
       # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
       # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
       # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
@@ -227,7 +227,7 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-service:8761/eureka
 
       # 🔑 AWS MSK SERVERLESS
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9094
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=b-1.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092,b-2.otelprometheusintegra.6ngfgi.c3.kafka.ap-south-1.amazonaws.com:9092
       # - SPRING_KAFKA_PROPERTIES_SECURITY_PROTOCOL=SASL_SSL
       # - SPRING_KAFKA_PROPERTIES_SASL_MECHANISM=AWS_MSK_IAM
       # - SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG=software.amazon.msk.auth.iam.IAMLoginModule required;
